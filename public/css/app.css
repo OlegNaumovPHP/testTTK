@@ -1,0 +1,152 @@
+@import url(https://fonts.googleapis.com/css?family=Nunito);
+body {
+  background: rgba(202, 202, 202, 0.8);
+}
+
+.el-container {
+  width: 80%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.form__container {
+  width: 40%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 50px;
+}
+
+.el-form {
+  margin-top: 150px;
+  background: #fff;
+  padding: 24px 48px 24px 24px;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px 0 #22222255;
+}
+
+.el-col {
+  min-height: 36px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 36px 0;
+  background: none;
+}
+.header .el__header {
+  background: none;
+  border: none;
+}
+
+.nav__link {
+  font-weight: 400;
+  font-size: 16px;
+  margin-left: 16px;
+  color: #3eaf7c;
+  text-decoration: none;
+  transition: color 0.4s;
+}
+
+.router-link-exact-active, .router-link-active, .log-reg {
+  color: #3eaf7c;
+  text-decoration: none;
+  transition: color 0.4s;
+}
+
+.nav__link:hover, .router-link-exact-active:hover, .router-link-active:hover, .log-reg:hover {
+  color: #1ce790;
+}
+
+.log-reg:hover {
+  color: #0b452d;
+}
+
+.el-input {
+  border: none;
+  padding: 0;
+}
+
+header {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.home_posts {
+  background: #fff;
+  width: 80%;
+  margin: 50px auto;
+  max-width: 900px;
+  border-radius: 4px;
+  padding: 16px 16px 16px 16px;
+  box-shadow: 0 3px 10px 0 #22222255;
+}
+.home_posts table {
+  width: 100%;
+}
+.home_posts tr:not(:first-child) {
+  border-top: 1px solid #b8b8b8;
+}
+.home_posts th, .home_posts td {
+  padding: 16px;
+  text-align: center;
+}
+
+.filter_posts {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.not__loading {
+  display: none;
+}
+
+.no_border {
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.el-upload-list__item-name {
+  height: 23px;
+}
+
+footer {
+  margin-top: calc(100vh - 200px);
+  width: 100%;
+  background: #3f3f3f;
+}
+
+.post_info-text {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 54%;
+  max-width: 54%;
+  padding: 0 8px;
+}
+
+.books__file {
+  max-width: 50px;
+  max-height: 50px;
+  cursor: pointer;
+}
+
+.sections {
+  width: 100%;
+  margin: 0 0 16px 0;
+  border-radius: 4px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 3px 10px 0 #22222255;
+  transition: 0.4s;
+}
+
+.sections:hover {
+  box-shadow: 0 5px 15px 0 #22222255;
+}
+
+.sections:focus, .sections:active {
+  outline: none;
+}
