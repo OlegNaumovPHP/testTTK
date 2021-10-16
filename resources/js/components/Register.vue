@@ -15,6 +15,15 @@
         <div class="form__container">
             <el-form style="margin-top: 150px; background: #fff; padding: 24px; border-radius: 4px; box-shadow: 0 3px 10px 0 #22222255;">
                 <h3 style="margin-bottom: 12px;">Регистрация</h3>
+                <el-alert
+                    v-if="validErrors"
+                    style="margin-bottom: 16px"
+                    type="error"
+                    :closable="false">
+                    <p v-for="error in errors">
+                        {{ error }}
+                    </p>
+                </el-alert>
                 <valid_errors v-if="valid_errors" :errors="valid_errors"></valid_errors>
                 <el-form-item>
                     <el-input type="text" v-model="form_data.name" name="name" autofocus class="form-control" placeholder="Иванов Иван Иванович" />
@@ -34,7 +43,7 @@
                 <el-form-item>
                     <el-input type="password" v-model="form_data.password_confirm" name="password_confirm" class="form-control" placeholder="Повторите пароль" show-password/>
                 </el-form-item>
-                <el-button :loading="loadState" @click.prevent='send' style="outline: none">Зарегистрироваться</el-button>
+                <el-button :loading="loadState" @click.prevent='valid' style="outline: none">Зарегистрироваться</el-button>
                 <router-link class="log-reg" to="/login">Есть аккаунта? - Авторизируйтесь!</router-link>
             </el-form>
         </div>
@@ -49,6 +58,8 @@ export default {
             token: '',
             loadState: false,
             valid_errors: '',
+            validErrors: false,
+            errors: [],
             form_data: {
                 name: '',
                 login: '',
@@ -76,6 +87,32 @@ export default {
     },
     methods:
         {
+            valid() {
+                if (this.form_data.login.length > 3 && this.form_data.password.length > 8 && this.form_data.password_confirm.length > 8 &&
+                    this.form_data.name.length > 2 && this.form_data.country.length > 4) {
+                    this.send();
+                    this.validErrors = false;
+                } else if (this.form_data.name.length < 2) {
+                    this.errors.push('Минимальная длина имени: 2');
+                    this.validErrors = true;
+                } else if (this.form_data.login.length < 3) {
+                    this.errors.pop()
+                    this.errors.push('Минимальная длина логина: 3');
+                    this.validErrors = true;
+                } else if (this.form_data.country.length < 4) {
+                    this.errors.pop()
+                    this.errors.push('Минимальная длина страны рождения: 4');
+                    this.validErrors = true;
+                }else if (this.form_data.password.length < 8) {
+                    this.errors.pop()
+                    this.errors.push('Минимальная длина пароля: 8');
+                    this.validErrors = true;
+                } else if (this.form_data.password_confirm.length < 8) {
+                    this.errors.pop()
+                    this.errors.push('Минимальная длина проверки пароля: 8');
+                    this.validErrors = true;
+                }
+            },
             checkUser() {
                 axios
                     .get('/api/getUser')

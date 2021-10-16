@@ -1,6 +1,7 @@
 <template>
     <main>
         <section class="home_posts">
+            <h2 style="margin-bottom: 16px">{{ name_section }}</h2>
             <!--        Здесь фильтр-->
             <div class="filter_posts">
                 <el-tooltip class="item" effect="light" content="Назад" placement="top">
@@ -47,14 +48,23 @@
             <span>
                     <el-form class="no_border" enctype="multipart/form-data">
                         <valid_errors v-if="valid_errors" :errors="valid_errors"></valid_errors>
+                        <el-alert
+                            v-if="validErrors"
+                            style="margin-bottom: 16px"
+                            type="error"
+                            :closable="false">
+                            <p v-for="error in errors">
+                                {{ error }}
+                            </p>
+                        </el-alert>
                         <el-form-item>
-                            <el-input type="text" v-model="book.name" autofocus class="form-control" placeholder="Название книги" />
+                            <el-input type="text" v-model="book.name" autofocus class="form-control" placeholder="Название книги" maxlength="40" show-word-limit />
                         </el-form-item>
                         <el-form-item>
-                            <el-input type="number" v-model="book.year" autofocus class="form-control" placeholder="Год издания" />
+                            <el-input type="text" v-model="book.year" autofocus class="form-control" placeholder="Год издания" maxlength="4" show-word-limit />
                         </el-form-item>
                         <el-form-item>
-                            <el-input type="textarea" style="border: none; padding: 0" v-model="book.desc" autofocus class="form-control" placeholder="Описание книги" />
+                            <el-input type="textarea" style="border: none; padding: 0" v-model="book.desc" autofocus class="form-control" placeholder="Описание книги" maxlength="500" show-word-limit />
                         </el-form-item>
                         <el-upload
                             ref="upload"
@@ -67,10 +77,10 @@
                             :before-upload="upload_file"
                             :on-success="success_file">
                             <el-button size="small" type="primary">Нажмите, чтобы загрузить</el-button>
-                            <div slot="tip" class="el-upload__tip">файлы jpg/png размером менее 500 КБ</div>
+                            <div slot="tip" class="el-upload__tip">файлы jpg размером менее 500 КБ</div>
                         </el-upload>
                         <div style="display: flex; justify-content: flex-end">
-                            <el-button type="primary" :loading="load_state" @click.prevent="send(); getBooks()">Изменить</el-button>
+                            <el-button type="primary" :loading="load_state" @click.prevent="validRedact">Изменить</el-button>
                             <el-button @click="dialogVisibleRedaction=false">Отменить</el-button>
                         </div>
                     </el-form>
@@ -87,14 +97,23 @@
                 <span>
                     <el-form class="no_border" enctype="multipart/form-data">
                         <valid_errors v-if="valid_errors" :errors="valid_errors"></valid_errors>
+                        <el-alert
+                            v-if="validErrors"
+                            style="margin-bottom: 16px"
+                            type="error"
+                            :closable="false">
+                            <p v-for="error in errors">
+                                {{ error }}
+                            </p>
+                        </el-alert>
                         <el-form-item>
-                            <el-input type="text" v-model="form_data.name" autofocus class="form-control" placeholder="Название книги" />
+                            <el-input type="text" v-model="form_data.name" autofocus class="form-control" placeholder="Название книги" maxlength="40" show-word-limit />
                         </el-form-item>
                         <el-form-item>
-                            <el-input type="number" v-model="form_data.year" autofocus class="form-control" placeholder="Год издания" />
+                            <el-input type="text" v-model="form_data.year" autofocus class="form-control" placeholder="Год издания" maxlength="4" show-word-limit />
                         </el-form-item>
                         <el-form-item>
-                            <el-input type="textarea" style="border: none; padding: 0" v-model="form_data.desc" autofocus class="form-control" placeholder="Описание книги" />
+                            <el-input type="textarea" style="border: none; padding: 0" v-model="form_data.desc" autofocus class="form-control" placeholder="Описание книги" maxlength="500" show-word-limit />
                         </el-form-item>
                         <el-upload
                             ref="upload"
@@ -107,10 +126,10 @@
                             :before-upload="upload_file"
                             :on-success="success_file">
                             <el-button size="small" type="primary">Нажмите, чтобы загрузить</el-button>
-                            <div slot="tip" class="el-upload__tip">файлы jpg/png размером менее 500 КБ</div>
+                            <div slot="tip" class="el-upload__tip">файлы jpg размером менее 500 КБ</div>
                         </el-upload>
                         <div style="display: flex; justify-content: flex-end">
-                            <el-button type="primary" :loading="load_state" @click.prevent="send(); getBooks()">Добавить</el-button>
+                            <el-button type="primary" :loading="load_state" @click.prevent="valid">Добавить</el-button>
                             <el-button @click="dialogVisible=false">Отменить</el-button>
                         </div>
                     </el-form>
@@ -287,6 +306,7 @@ export default {
             valid_errors: '',
             form_data: {
                 name: '',
+                year: '',
                 desc: '',
                 file: '',
                 user_id: ''
@@ -315,6 +335,7 @@ export default {
             },
             uploadFile: '',
             fileName: '',
+            name_section: '',
             load_state: false,
             name_search: '',
             desc_search: '',
@@ -330,6 +351,8 @@ export default {
             users: [],
             disabledPrev: false,
             disabledNext: false,
+            errors: [],
+            validErrors: false
         }
     },
     computed: {
@@ -374,10 +397,56 @@ export default {
         this.user.name = localStorage.getItem('name');
         this.user.login = localStorage.getItem('login');
         this.form_data.section_id = localStorage.getItem('numberSection');
+        this.name_section = localStorage.getItem('nameSection');
+        console.log(localStorage.getItem('nameSection'))
     },
     methods: {
+        valid() {
+            this.$refs.upload.submit();
+            if (this.form_data.name.length > 3 && this.form_data.desc.length > 8 && this.form_data.year.length > 3 && this.form_data.file) {
+                this.send();
+                this.getBooks();
+                this.validErrors = false;
+            } else if (this.form_data.name.length < 3) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина названия: 3');
+                this.validErrors = true;
+            } else if (this.form_data.year.length < 3) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина года издания: 3');
+                this.validErrors = true;
+            } else if (this.form_data.desc.length < 8) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина описания: 8');
+                this.validErrors = true;
+            } else if (!this.form_data.file) {
+                this.errors.pop()
+                this.errors.push('Изображение обязательно!');
+                this.validErrors = true;
+            }
+        },
+        validRedact() {
+            if (this.book.name.length > 3 && this.book.desc.length > 8 && this.book.year.length > 3 && this.book.file) {
+                this.send();
+                this.getBooks();
+                this.validErrors = false;
+            } else if (this.book.name.length < 3) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина названия: 3');
+                this.validErrors = true;
+            } else if (this.book.year.length < 3) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина года издания: 3');
+                this.validErrors = true;
+            } else if (this.book.desc.length < 8) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина описания: 8');
+                this.validErrors = true;
+            }
+        },
         back() {
             localStorage.setItem('numberSection', '');
+            localStorage.setItem('NameSection', '');
             this.$router.push({ path: '/' });
         },
         getBooks(page_url) {
@@ -478,7 +547,6 @@ export default {
                 .catch(_ => {});
         },
         send() {
-            this.$refs.upload.submit();
             this.load_state = true;
             if (this.edit === false) {
                 axios

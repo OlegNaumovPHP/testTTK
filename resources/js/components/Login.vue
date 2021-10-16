@@ -16,13 +16,22 @@
             <el-form>
                 <h3 style="margin-bottom: 12px;">Вход</h3>
                 <valid_errors v-if="valid_errors" :errors="valid_errors"></valid_errors>
+                <el-alert
+                    v-if="validErrors"
+                    style="margin-bottom: 16px"
+                    type="error"
+                    :closable="false">
+                    <p v-for="error in errors">
+                        {{ error }}
+                    </p>
+                </el-alert>
                 <el-form-item>
                     <el-input type="text" v-model="form_data.login" name="login" autofocus class="form-control" placeholder="Ваш логин, например: user" />
                 </el-form-item>
                 <el-form-item>
                     <el-input type="password" v-model="form_data.password" name="password" class="form-control" placeholder="Введите пароль" show-password/>
                 </el-form-item>
-                <el-button :loading="loadStatus" @click.prevent='send' style="outline: none">Войти</el-button>
+                <el-button :loading="loadStatus" @click.prevent='valid'  style="outline: none">Войти</el-button>
                 <router-link class="log-reg" to="/register">Нет аккаунта? - Зарегистрируйтесь!</router-link>
             </el-form>
         </div>
@@ -51,6 +60,8 @@ export default {
                 role_user: '',
             },
             roles_user: [],
+            errors: [],
+            validErrors: false
         }
     },
     mounted() {
@@ -59,6 +70,20 @@ export default {
     },
     methods:
         {
+            valid() {
+                if (this.form_data.login.length > 3 && this.form_data.password.length > 8) {
+                    this.send();
+                    this.validErrors = false;
+                } else if (this.form_data.login.length < 3) {
+                    this.errors.pop()
+                    this.errors.push('Минимальная длина логина: 3');
+                    this.validErrors = true;
+                } else if (this.form_data.password.length < 8) {
+                    this.errors.pop()
+                    this.errors.push('Минимальная длина пароля: 8');
+                    this.validErrors = true;
+                }
+            },
             checkUser() {
                 axios
                     .get('/api/getUser')

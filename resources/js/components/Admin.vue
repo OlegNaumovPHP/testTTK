@@ -1,23 +1,15 @@
 <template>
     <main>
         <div v-if="user.role_user === 'admin'" class="check_user_role">
-            <header>
-                <el-container class="el-container">
-                    <el-header class="header">
-                        <router-link :underline="false" to="/">Test</router-link>
-                        <el-menu class="el__header">
-                            <router-link class="nav__link" v-if="user.role_user === 'admin'" to="/admin">Админка</router-link>
-                            <router-link :underline="false" class="nav__link" to="/">Главная</router-link>
-                            <router-link v-if="token" class="nav__link" to="/logout">Выйти</router-link>
-                            <router-link v-else class="nav__link" to="/login">Войти</router-link>
-                        </el-menu>
-                    </el-header>
-                </el-container>
-            </header>
-
             <section class="home_posts">
+                <el-tooltip class="item" effect="light" content="Назад" placement="top">
+                    <el-button @click="back()" class="el-icon-back" circle></el-button>
+                </el-tooltip>
                 <el-tooltip class="item" effect="light" content="Добавить автора" placement="top">
                     <el-button @click="dialogVisible=true" type="primary" class="el-icon-plus" circle style="margin: 0 -5px 0 0"></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="light" content="Перезагрузить" placement="top">
+                    <el-button class="el-icon-refresh" @click="getUser()" circle></el-button>
                 </el-tooltip>
                 <el-alert
                     v-if="errored"
@@ -26,13 +18,6 @@
                     :closable="false">
                     Произошла какая-то ошибка, попробуйте позже:(
                 </el-alert>
-
-                <div
-                    class="loading__icons"
-                    v-loading="loading"
-                    element-loading-text="Загрузка..."
-                    style="width: 100%; height: 50%; background: #000000ff">
-                </div>
 
                 <table v-if="loading === false">
                     <tr>
@@ -84,7 +69,7 @@
                             <el-input type="password" v-model="form_data.password_confirm" name="password_confirm" class="form-control" placeholder="Повторите пароль" show-password/>
                         </el-form-item>
                         <div style="display: flex; justify-content: flex-end">
-                            <el-button type="primary" :loading="load_state" @click.prevent="send(); getUser()">Добавить</el-button>
+                            <el-button type="primary" :loading="load_state" @click.prevent="valid">Добавить</el-button>
                             <el-button @click="dialogVisible=false">Отменить</el-button>
                         </div>
                     </el-form>
@@ -130,12 +115,6 @@
                 Произошла какая-то ошибка, попробуйте позже:(
             </el-alert>
 
-            <div
-                class="loading__icons"
-                v-loading="loading"
-                element-loading-text="Загрузка..."
-                style="display: none;">
-            </div>
             <el-alert
                 style="margin-top: calc(50vh - 250px);
                 display:flex;
@@ -203,12 +182,42 @@ export default {
         this.checkUserRole();
     },
     methods: {
+        valid() {
+            if (this.form_data.login.length > 3 && this.form_data.password.length > 8 && this.form_data.password_confirm.length > 8 &&
+                this.form_data.name.length > 2 && this.form_data.country.length > 4) {
+                this.send();
+                this.getUser();
+                this.validErrors = false;
+            } else if (this.form_data.name.length < 2) {
+                this.errors.push('Минимальная длина имени: 2');
+                this.validErrors = true;
+            } else if (this.form_data.login.length < 3) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина логина: 3');
+                this.validErrors = true;
+            } else if (this.form_data.country.length < 4) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина страны рождения: 4');
+                this.validErrors = true;
+            }else if (this.form_data.password.length < 8) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина пароля: 8');
+                this.validErrors = true;
+            } else if (this.form_data.password_confirm.length < 8) {
+                this.errors.pop()
+                this.errors.push('Минимальная длина проверки пароля: 8');
+                this.validErrors = true;
+            }
+        },
         checkUserRole() {
             if (localStorage.getItem('role') !== 'admin') {
                 setTimeout(() => {
                     this.$router.push({ path: '/' })
                 }, 2000)
             }
+        },
+        back() {
+            this.$router.push({ path: '/' });
         },
         getRoleUser() {
             axios
@@ -334,8 +343,6 @@ export default {
                 .catch(_ => {});
         },
         getUser() {
-            let dontLoading = document.querySelector('.loading__icons');
-            dontLoading.classList.remove('not__loading');
             this.loading = true;
             axios
                 .get('/api/getUser')
@@ -347,7 +354,6 @@ export default {
                 })
                 .finally(() => setTimeout(() => {
                     this.loading = false
-                    dontLoading.classList.add('not__loading');
                 }, 500));
         },
         editUser(user) {

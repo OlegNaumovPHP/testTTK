@@ -20,7 +20,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        return Book::paginate(5);
+        //
     }
 
     /**
@@ -61,7 +61,7 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(PostRequest  $request, $id)
     {
         $book = Book::find($id);
 
