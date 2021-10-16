@@ -355,6 +355,7 @@ export default {
         },
         sectionBooks() {
             localStorage.setItem('numberSection', this.numberSection);
+            localStorage.setItem('section_id', this.numberSection);
             this.$router.push({ path: '/books' });
         },
         getSections() {

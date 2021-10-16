@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\CollectionHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostRequest;
 use App\Models\Section;
 use App\Services\SectionService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class SectionController extends Controller
 {
@@ -44,11 +46,12 @@ class SectionController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function show($id)
     {
-        //
+        $books = Section::find($id)->books;
+        return CollectionHelper::paginate($books, 5);
     }
 
     /**

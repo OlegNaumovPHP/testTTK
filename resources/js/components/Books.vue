@@ -28,19 +28,13 @@
                     v-model="name_search">
                     <i slot="prefix" class="el-input__icon el-icon-search"></i>
                 </el-input>
-                <el-input v-model="user_search" filterable placeholder="Поиск во автору..." style="width: 240px" auto-complete="on">
+                <el-input
+                    v-model="user_search"
+                    filterable
+                    placeholder="Поиск во автору..."
+                    style="width: 240px"
+                    auto-complete="on">
                     <i slot="prefix" class="el-input__icon el-icon-search" />
-                    <el-option
-                        selected
-                        label="Все авторы"
-                        :value="users">
-                    </el-option>
-                    <el-option
-                        v-for="item in users"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id">
-                    </el-option>
                 </el-input>
             </div>
 
@@ -387,7 +381,7 @@ export default {
             this.$router.push({ path: '/' });
         },
         getBooks(page_url) {
-            page_url = page_url || '/api/books'
+            page_url = page_url || `/api/section/${localStorage.getItem('numberSection')}`
             let dontLoading = document.querySelector('.loading__icons');
             dontLoading.classList.remove('not__loading');
             this.loading = true;
