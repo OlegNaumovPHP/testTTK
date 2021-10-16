@@ -39,86 +39,79 @@
                 style="width: 100%; height: 50%; background: #000000ff">
             </div>
 
-            <template>
-                <el-carousel v-if="loading === false" :interval="3000" height="700px" direction="vertical" :autoplay="true">
-                    <el-carousel-item v-if="section.soft_delete === 'no'" v-for="section in sections" :key="section.name">
-                        <div v-if="user.role_user === 'admin'"  style="float: right; background: #fff;  padding: 10px">
-                            <el-tooltip class="item" effect="light" content="Редактировать раздел" placement="top">
-                                <el-button @click="dialogVisibleRedaction = true; editSection(section)" type="success" icon="el-icon-edit"></el-button>
-                            </el-tooltip>
-                            <el-tooltip class="item" effect="light" content="Удалить раздел" placement="top">
-                                <el-button @click="deleteSection(section.id)"  type="danger" icon="el-icon-delete"></el-button>
-                            </el-tooltip>
-                            <el-tooltip class="item" effect="light" content="Скрыть раздел" placement="top">
-                                <el-button @click="section.soft_delete = 'yes'; editSection(section); softDelete()" icon="el-icon-view"></el-button>
-                            </el-tooltip>
-                        </div>
-                        <button class="sections" @click="numberSection = section.id; nameSection = section.name;  sectionBooks()">
-                            <el-row :gutter="24">
-                                <el-col :xl="18">
-                                    <h2>{{ section.name }}</h2>
-                                </el-col>
-                            </el-row>
-                            <el-row>
-                                <el-col style="padding: 0">
-                                    <el-image
-                                        :src=section.file
-                                        style="border-radius: 4px;
-                                    display:flex;
-                                    justify-content:center;
-                                    align-items: center;
-                                    border: none;
-                                    max-height: 500px;
-                                    width: 100%;
-                                    :fit=cover">
-                                    </el-image>
-                                </el-col>
-                            </el-row>
-                            <el-row style="margin-top: 12px">
-                                <p>{{ section.desc }}</p>
-                            </el-row>
-                        </button>
-                    </el-carousel-item>
-
-                    <el-carousel-item v-if="section.soft_delete === 'yes' && user.role_user === 'admin'" v-for="section in sections" :key="section.name">
-                        <div v-if="user.role_user === 'admin'"  style="float: right; background: #fff; padding: 10px">
-                            <el-tooltip class="item" effect="light" content="Проявить раздел" placement="top">
-                                <el-button @click="section.soft_delete = 'no'; editSection(section);  softDelete();" type="success">Восстановить</el-button>
-                            </el-tooltip>
-                        </div>
-                        <button class="sections" @click="numberSection = section.id; nameSection = section.name; sectionBooks()">
-                            <el-row :gutter="24">
-                                <el-col :xl="18">
-                                    <h2>{{ section.name }}</h2>
-                                </el-col>
-                            </el-row>
-                            <el-row>
-                                <el-col style="padding: 0">
-                                    <el-image
-                                        :src=section.file
-                                        style="border-radius: 4px;
-                                    display:flex;
-                                    justify-content:center;
-                                    align-items: center;
-                                    border: none;
-                                    max-height: 500px;
-                                    width: 100%;
+            <el-carousel v-if="loading === false && sections.length > 0" :interval="3000" height="700px" direction="vertical" :autoplay="true">
+                <el-carousel-item v-if="section.soft_delete === 'no'" v-for="section in sections" :key="section.name">
+                    <div v-if="user.role_user === 'admin'"  style="float: right; background: #fff;  padding: 10px">
+                        <el-tooltip class="item" effect="light" content="Редактировать раздел" placement="top">
+                            <el-button @click="dialogVisibleRedaction = true; editSection(section)" type="success" icon="el-icon-edit"></el-button>
+                        </el-tooltip>
+                        <el-tooltip class="item" effect="light" content="Удалить раздел" placement="top">
+                            <el-button @click="deleteSection(section.id)"  type="danger" icon="el-icon-delete"></el-button>
+                        </el-tooltip>
+                        <el-tooltip class="item" effect="light" content="Скрыть раздел" placement="top">
+                            <el-button @click="section.soft_delete = 'yes'; editSection(section); softDelete()" icon="el-icon-view"></el-button>
+                        </el-tooltip>
+                    </div>
+                    <button class="sections" @click="numberSection = section.id; nameSection = section.name;  sectionBooks()">
+                        <el-row :gutter="24">
+                            <el-col :xl="18">
+                                <h2>{{ section.name }}</h2>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col style="padding: 0">
+                                <el-image
+                                    :src=section.file
+                                    style="border-radius: 4px;
+                                display:flex;
+                                justify-content:center;
+                                align-items: center;
+                                border: none;
+                                max-height: 500px;
+                                width: 100%;
                                 :fit=cover">
-                                    </el-image>
-                                </el-col>
-                            </el-row>
-                            <el-row style="margin-top: 12px">
-                                <p>{{ section.desc }}</p>
-                            </el-row>
-                        </button>
-                    </el-carousel-item>
-                </el-carousel>
-            </template>
+                                </el-image>
+                            </el-col>
+                        </el-row>
+                        <el-row style="margin-top: 12px">
+                            <p>{{ section.desc }}</p>
+                        </el-row>
+                    </button>
+                </el-carousel-item>
 
-            <div v-if="loading === false">
-
-
-            </div>
+                <el-carousel-item v-if="section.soft_delete === 'yes' && user.role_user === 'admin'" v-for="section in sections" :key="section.name">
+                    <div v-if="user.role_user === 'admin'"  style="float: right; background: #fff; padding: 10px">
+                        <el-tooltip class="item" effect="light" content="Проявить раздел" placement="top">
+                            <el-button @click="section.soft_delete = 'no'; editSection(section);  softDelete();" type="success">Восстановить</el-button>
+                        </el-tooltip>
+                    </div>
+                    <button class="sections" @click="numberSection = section.id; nameSection = section.name; sectionBooks()">
+                        <el-row :gutter="24">
+                            <el-col :xl="18">
+                                <h2>{{ section.name }}</h2>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col style="padding: 0">
+                                <el-image
+                                    :src=section.file
+                                    style="border-radius: 4px;
+                                display:flex;
+                                justify-content:center;
+                                align-items: center;
+                                border: none;
+                                max-height: 500px;
+                                width: 100%;
+                            :fit=cover">
+                                </el-image>
+                            </el-col>
+                        </el-row>
+                        <el-row style="margin-top: 12px">
+                            <p>{{ section.desc }}</p>
+                        </el-row>
+                    </button>
+                </el-carousel-item>
+            </el-carousel>
         </section>
 
         <!--Здаесь формочка для создания записи-->
