@@ -202,13 +202,11 @@
                         <th>{{ book.id }}</th>
                         <td>{{ book.name }}</td>
                         <td>
-                            <el-tooltip class="item" effect="light" content="Увеличить фото" placement="top">
-                                <el-image
-                                    class="books__file"
-                                    :src="book.file"
-                                    @click="visibleFile = true; srcModal = book.file">
-                                </el-image>
-                            </el-tooltip>
+                            <el-image
+                                class="books__file"
+                                :src="book.file"
+                                @click="visibleFile = true; srcModal = book.file">
+                            </el-image>
                         </td>
                         <td>{{ book.year }}</td>
                         <td>{{ book.desc }}</td>

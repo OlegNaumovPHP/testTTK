@@ -130,16 +130,23 @@
                         <el-row>
                             <el-col style="padding: 0">
                                 <el-image
+                                    v-if="section.file"
                                     :src=section.file
                                     style="border-radius: 4px;
-                                    display:flex;
-                                    justify-content:center;
-                                    align-items: center;
                                     border: none;
                                     max-height: 500px;
                                     width: 100%;
                                     :fit=cover">
                                 </el-image>
+                                <el-empty
+                                    v-else
+                                    description="Извините, фото не найдено :("
+                                    style="border: none;
+                                    height: 500px;
+                                    max-height: 500px;
+                                    width: 100%;
+                                    :fit=cover">
+                                </el-empty>
                             </el-col>
                         </el-row>
                         <el-row style="margin-top: 12px">
