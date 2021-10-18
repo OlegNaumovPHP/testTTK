@@ -14,14 +14,31 @@
             </el-container>
         </header>
         <section class="home_posts">
-
-            <el-row style="width: 100%; margin-bottom: 16px">
-                <el-tooltip v-if="user.role_user === 'admin'" class="item" effect="light" content="Добавить раздел" placement="top">
-                    <el-button @click="dialogVisible=true" type="primary" class="el-icon-plus" style="margin: 0 -5px 0 0" circle></el-button>
-                </el-tooltip>
-                <el-tooltip class="item" effect="light" content="Перезагрузить" placement="top">
-                    <el-button class="el-icon-refresh" @click="getSections()" circle></el-button>
-                </el-tooltip>
+            <el-row :gutter="24" style="width: 100%; margin-bottom: 16px; margin-left: 3px">
+                <el-col :xl="9" style="padding: 0;">
+                    <el-tooltip v-if="user.role_user === 'admin'" class="item" effect="light" content="Добавить раздел" placement="top">
+                        <el-button @click="dialogVisible=true" type="primary" class="el-icon-plus" style="margin: 0 -5px 0 0" circle></el-button>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="light" content="Перезагрузить" placement="top">
+                        <el-button class="el-icon-refresh" @click="getSections()" circle></el-button>
+                    </el-tooltip>
+                </el-col>
+                <el-col :xl="15" style="padding: 0 0 0 56px;">
+                    <el-input
+                        style="width: 240px;"
+                        placeholder="Поиск по описанию..."
+                        auto-complete="on"
+                        v-model="desc_search">
+                        <i slot="prefix" class="el-input__icon el-icon-search"></i>
+                    </el-input>
+                    <el-input
+                        style="width: 240px;"
+                        placeholder="Поиск по названию..."
+                        auto-complete="on"
+                        v-model="name_search">
+                        <i slot="prefix" class="el-input__icon el-icon-search"></i>
+                    </el-input>
+                </el-col>
             </el-row>
 
             <el-alert
@@ -40,13 +57,17 @@
             </div>
 
             <el-carousel v-if="loading === false && sections.length > 0" :interval="3000" height="700px" direction="vertical" :autoplay="true">
-                <el-carousel-item v-if="section.soft_delete === 'no'" v-for="section in sections" :key="section.name">
+                <el-carousel-item v-if="section.soft_delete === 'no'" v-for="section in filteredSections" :key="section.name">
                     <div v-if="user.role_user === 'admin'"  style="float: right; background: #fff;  padding: 10px">
                         <el-tooltip class="item" effect="light" content="Редактировать раздел" placement="top">
                             <el-button @click="dialogVisibleRedaction = true; editSection(section)" type="success" icon="el-icon-edit"></el-button>
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" content="Удалить раздел" placement="top">
-                            <el-button @click="deleteSection(section.id)"  type="danger" icon="el-icon-delete"></el-button>
+                            <el-popconfirm
+                                title="Вы уверены, что хотите удалить это?"
+                                @confirm="deleteSection(section.id)">
+                                <el-button slot="reference" type="danger" icon="el-icon-delete"></el-button>
+                            </el-popconfirm>
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" content="Скрыть раздел" placement="top">
                             <el-button @click="section.soft_delete = 'yes'; editSection(section); softDelete()" icon="el-icon-view"></el-button>
@@ -54,23 +75,31 @@
                     </div>
                     <button class="sections" @click="numberSection = section.id; nameSection = section.name;  sectionBooks()">
                         <el-row :gutter="24">
-                            <el-col :xl="18">
+                            <el-col>
                                 <h2>{{ section.name }}</h2>
                             </el-col>
                         </el-row>
                         <el-row>
                             <el-col style="padding: 0">
                                 <el-image
+                                    v-if="section.file"
                                     :src=section.file
                                     style="border-radius: 4px;
-                                display:flex;
-                                justify-content:center;
-                                align-items: center;
-                                border: none;
-                                max-height: 500px;
-                                width: 100%;
-                                :fit=cover">
+                                    border: none;
+                                    max-height: 500px;
+                                    width: 100%;
+                                    :fit=cover">
                                 </el-image>
+                                <el-empty
+                                    v-else
+                                    description="Извините, фото не найдено :("
+                                    style="
+                                    border: none;
+                                    height: 500px;
+                                    max-height: 500px;
+                                    width: 100%;
+                                    :fit=cover">
+                                </el-empty>
                             </el-col>
                         </el-row>
                         <el-row style="margin-top: 12px">
@@ -79,15 +108,22 @@
                     </button>
                 </el-carousel-item>
 
-                <el-carousel-item v-if="section.soft_delete === 'yes' && user.role_user === 'admin'" v-for="section in sections" :key="section.name">
+                <el-carousel-item v-if="section.soft_delete === 'yes' && user.role_user === 'admin'" v-for="section in filteredSections" :key="section.name">
                     <div v-if="user.role_user === 'admin'"  style="float: right; background: #fff; padding: 10px">
                         <el-tooltip class="item" effect="light" content="Проявить раздел" placement="top">
                             <el-button @click="section.soft_delete = 'no'; editSection(section);  softDelete();" type="success">Восстановить</el-button>
                         </el-tooltip>
+                        <el-tooltip class="item" effect="light" content="Удалить раздел" placement="top">
+                            <el-popconfirm
+                                title="Вы уверены, что хотите удалить это?"
+                                @confirm="deleteSection(section.id)">
+                                <el-button slot="reference" type="danger" icon="el-icon-delete"></el-button>
+                            </el-popconfirm>
+                        </el-tooltip>
                     </div>
                     <button class="sections" @click="numberSection = section.id; nameSection = section.name; sectionBooks()">
                         <el-row :gutter="24">
-                            <el-col :xl="18">
+                            <el-col>
                                 <h2>{{ section.name }}</h2>
                             </el-col>
                         </el-row>
@@ -96,13 +132,13 @@
                                 <el-image
                                     :src=section.file
                                     style="border-radius: 4px;
-                                display:flex;
-                                justify-content:center;
-                                align-items: center;
-                                border: none;
-                                max-height: 500px;
-                                width: 100%;
-                            :fit=cover">
+                                    display:flex;
+                                    justify-content:center;
+                                    align-items: center;
+                                    border: none;
+                                    max-height: 500px;
+                                    width: 100%;
+                                    :fit=cover">
                                 </el-image>
                             </el-col>
                         </el-row>
@@ -149,7 +185,7 @@
                             :before-upload="upload_file"
                             :on-success="success_file">
                             <el-button size="small" type="primary">Нажмите, чтобы загрузить</el-button>
-                            <div slot="tip" class="el-upload__tip">файлы jpg размером менее 500 КБ</div>
+                            <div slot="tip" class="el-upload__tip">файлы jpg/png размером менее 500 КБ</div>
                         </el-upload>
                         <div style="display: flex; justify-content: flex-end">
                             <el-button type="primary" :loading="load_state" @click.prevent="valid">Добавить</el-button>
@@ -194,7 +230,7 @@
                             :before-upload="upload_file"
                             :on-success="success_file">
                             <el-button size="small" type="primary">Нажмите, чтобы загрузить</el-button>
-                            <div slot="tip" class="el-upload__tip">файлы jpg размером менее 500 КБ</div>
+                            <div slot="tip" class="el-upload__tip">файлы jpg/png размером менее 500 КБ</div>
                         </el-upload>
                         <div style="display: flex; justify-content: flex-end">
                             <el-button type="primary" :loading="load_state" @click.prevent="validRedact">Изменить</el-button>
@@ -242,6 +278,23 @@ export default {
             dialogVisibleRedaction: false,
             validErrors: false,
             errors: [],
+            name_search: '',
+            desc_search: '',
+        }
+    },
+    computed: {
+        filteredSections() {
+            if (this.name_search) {
+                return this.sections.filter(section => {
+                    return section.name.toLowerCase().indexOf(this.name_search.toLowerCase()) !== -1;
+                })
+            } else if (this.desc_search) {
+                return this.sections.filter(section => {
+                    return section.desc.toLowerCase().indexOf(this.desc_search.toLowerCase()) !== -1;
+                })
+            } else {
+                return this.sections;
+            }
         }
     },
     async created() {

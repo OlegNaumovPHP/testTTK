@@ -10,7 +10,7 @@ class SectionService
     public static function create(array $data)
     {
         $fileName = data_get($data,'file');
-        $file = 'public/storage/images/' . $fileName;
+        $file = 'storage/app/public/images/' . $fileName;
 
         Section::create([
             'name'      => data_get($data, 'name'),

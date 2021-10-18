@@ -77,7 +77,7 @@
                             :before-upload="upload_file"
                             :on-success="success_file">
                             <el-button size="small" type="primary">Нажмите, чтобы загрузить</el-button>
-                            <div slot="tip" class="el-upload__tip">файлы jpg размером менее 500 КБ</div>
+                            <div slot="tip" class="el-upload__tip">файлы jpg/png размером менее 500 КБ</div>
                         </el-upload>
                         <div style="display: flex; justify-content: flex-end">
                             <el-button type="primary" :loading="load_state" @click.prevent="validRedact">Изменить</el-button>
@@ -126,7 +126,7 @@
                             :before-upload="upload_file"
                             :on-success="success_file">
                             <el-button size="small" type="primary">Нажмите, чтобы загрузить</el-button>
-                            <div slot="tip" class="el-upload__tip">файлы jpg размером менее 500 КБ</div>
+                            <div slot="tip" class="el-upload__tip">файлы jpg/png размером менее 500 КБ</div>
                         </el-upload>
                         <div style="display: flex; justify-content: flex-end">
                             <el-button type="primary" :loading="load_state" @click.prevent="valid">Добавить</el-button>
@@ -182,7 +182,11 @@
                                 <el-button @click="dialogVisibleRedaction = true; editBook(book)" type="success" icon="el-icon-edit"></el-button>
                             </el-tooltip>
                             <el-tooltip v-if="user.role_user === 'admin'" class="item" effect="light" content="Удалить книгу" placement="top">
-                                <el-button @click="deleteBook(book.id)" type="danger" icon="el-icon-delete"></el-button>
+                                <el-popconfirm
+                                    title="Вы уверены, что хотите удалить это?"
+                                    @confirm="deleteBook(book.id)">
+                                    <el-button slot="reference" type="danger" icon="el-icon-delete"></el-button>
+                                </el-popconfirm>
                             </el-tooltip>
                             <el-tooltip v-if="user.role_user === 'admin'" class="item" effect="light" content="Скрыть книгу" placement="top">
                                 <el-button @click="book.soft_delete = 'yes'; editBook(book); softDelete()" icon="el-icon-view"></el-button>
@@ -211,6 +215,13 @@
                         <td>
                             <el-tooltip class="item" effect="light" content="Проявить книгу" placement="top">
                                 <el-button @click="book.soft_delete = 'no'; editBook(book);  softDelete();" type="success">Восстановить</el-button>
+                            </el-tooltip>
+                            <el-tooltip v-if="user.role_user === 'admin'" class="item" effect="light" content="Удалить книгу" placement="top">
+                                <el-popconfirm
+                                    title="Вы уверены, что хотите удалить это?"
+                                    @confirm="deleteBook(book.id)">
+                                    <el-button slot="reference" type="danger" icon="el-icon-delete"></el-button>
+                                </el-popconfirm>
                             </el-tooltip>
                         </td>
                     </tr>
@@ -398,7 +409,6 @@ export default {
         this.user.login = localStorage.getItem('login');
         this.form_data.section_id = localStorage.getItem('numberSection');
         this.name_section = localStorage.getItem('nameSection');
-        console.log(localStorage.getItem('nameSection'))
     },
     methods: {
         valid() {
